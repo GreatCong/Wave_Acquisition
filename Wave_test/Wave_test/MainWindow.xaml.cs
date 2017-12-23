@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,8 +40,10 @@ namespace Wave_test
         VerticalAxisTitle chartVerticalAxisTitle = new VerticalAxisTitle();//y轴内容
         TextBlock chartXContents= new TextBlock();
         TextBlock chartYContents = new TextBlock();
+        Queue Q_data = new Queue();
         bool IsSerialDataDisplay = false;
-        Queue<byte> Q_data = new Queue<byte>();
+
+        System.Timers.Timer my_timer = new System.Timers.Timer(50);//实例化Timer类，设置间隔时间为1毫秒；
 
         //声明串口
         private SerialPort Usart = new SerialPort();
@@ -68,12 +71,21 @@ namespace Wave_test
 
         private void button_Start_Click(object sender, RoutedEventArgs e)
         {
-            //plotter.AddLineGraph(dataSource, Colors.Green, 2); 
+            //plotter.AddLineGraph(dataSource, Colors.Green, 2);
             timer.Interval = TimeSpan.FromSeconds(0.01);
             timer.Tick += new EventHandler(AnimatedPlot);//AnimatedPlot相当于是timer的回调
             timer.IsEnabled = true;//开启timer
 
+            my_timer.Elapsed += new System.Timers.ElapsedEventHandler(theout);//到达时间的时候执行事件；
+            //my_timer.AutoReset = true;//设置是执行一次（false）还是一直执行(true)； 
+            my_timer.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
+
             Q_data.Clear();//清除队列信息
+
+            if (Usart.IsOpen)
+            {
+                Usart.DiscardInBuffer();
+            }
 
             if (reset_state)
             {
@@ -84,19 +96,163 @@ namespace Wave_test
             plotter.Viewport.FitToView();
         }
 
+        private void theout(object source, System.Timers.ElapsedEventArgs e)
+        {
+            //Console.WriteLine("ok"); 
+            if (Q_data.Count > 1024)
+            {
+                lock (Q_data.SyncRoot)
+                {
+                    Serial_handles();
+                }
+
+            }
+
+        } 
+
         private void button_stop_Click(object sender, RoutedEventArgs e)
         {
             timer.IsEnabled = false;
+            //my_timer.AutoReset = false;
+            Q_data.Clear();//清除队列信息
+            my_timer.Enabled = false;
         }
 
         private void button_Clear_Click(object sender, RoutedEventArgs e)
         {
             //i = 0;
             reset_state = true;
-            timer.IsEnabled = false; 
+            //timer.IsEnabled = false; 
             plotter.Children.Remove(graphWave1);
             //需要注意的就是清除示波器数据时，除了要用plotter.Children.Remove（）指令，将此通道曲线移除，还要将数据源里数据移除。
             dataSource1 = new ObservableDataSource<Point>();
+        }
+        private int i_count = 0;
+        private void Serial_handles()
+        {
+            if (Usart.IsOpen == true)
+            {
+                int n = Q_data.Count;
+                if (n == 0) return;
+                Console.WriteLine("Q_data.Count={0}", n);
+
+                try
+                {
+                    //记录缓存数量
+                    //int n = Usart.BytesToRead;
+
+                    int n_thresh = 2048 * 1;
+                    
+
+                    if (n >= n_thresh)
+                    {
+                        //声明一个临时数组来存储当前来的串口数据
+                        byte[] buf_temp = new byte[n_thresh];
+
+                        //读取缓冲数据
+                        // Usart.Read(buf, 0, n_thresh);
+                        //Console.WriteLine("n={0}", n_thresh);
+
+                        //丢弃接受缓冲区数据
+                        //Usart.DiscardInBuffer();
+
+
+                        //dataSource1 = new ObservableDataSource<Point>();
+                        //graphWave1.DataSource = dataSource1;
+                        Dispatcher.Invoke(new Action(delegate
+                        {
+                            dataSource1.Collection.Clear();
+
+                            //dataSource1 = new ObservableDataSource<Point>();
+                            //graphWave1.DataSource = dataSource1;
+                            //for (int ii = 0; ii < n_thresh / 2; ii++)
+                            //{
+                            //    //ushort ushort_temp = BitConverter.ToUInt16(buf, 2 * ii);
+                            //    byte temp1 = (byte)Q_data.Dequeue();
+                            //    byte temp2 = (byte)Q_data.Dequeue();
+                            //    //int ushort_temp = (ushort)(buf_temp[2 * ii] << 8) | buf_temp[2 * ii + 1];//位操作最好加上强制转换，否则数据不对
+                            //    int ushort_temp = (ushort)(temp1 << 8) | temp2;//位操作最好加上强制转换，否则数据不对
+                            //    Point point1 = new Point(ii, ushort_temp);
+                            //    // 追加至Plot
+                            //    dataSource1.AppendAsync(base.Dispatcher, point1);
+                            //    //i++;
+                            //    //方便显示在text中
+                            //    buf_temp[2 * ii] = temp1;
+                            //    buf_temp[2 * ii + 1] = temp2;
+                            //}//for
+                        }));
+
+                        for (int ii = 0; ii < (n_thresh / 2); ii++)
+                        {
+                            //ushort ushort_temp = BitConverter.ToUInt16(buf, 2 * ii);
+                            byte temp1 = (byte)Q_data.Dequeue();
+                            byte temp2 = (byte)Q_data.Dequeue();
+                            //int ushort_temp = (ushort)(buf_temp[2 * ii] << 8) | buf_temp[2 * ii + 1];//位操作最好加上强制转换，否则数据不对
+                            int ushort_temp = (ushort)(temp1 << 8) | temp2;//位操作最好加上强制转换，否则数据不对
+                            Point point1 = new Point(i_count++, ushort_temp);
+                            // 追加至Plot
+                            dataSource1.AppendAsync(base.Dispatcher, point1);
+                            //i++;
+                            //方便显示在text中
+                            buf_temp[2 * ii] = temp1;
+                            buf_temp[2 * ii + 1] = temp2;
+                        }//for
+
+                        //if (IsSerialDataDisplay == true)
+                        //{
+                        //    string tempStr = " ";
+                        //    interfaceUpdateHandle = new HandleInterfaceUpdateDelagate(UpdateTextBox);//实例化委托对象                 
+                        //    Dispatcher.Invoke(interfaceUpdateHandle, new string[] { Encoding.ASCII.GetString(buf_temp) });
+                        //}
+
+                    }//if
+                    else
+                    {
+                        //未接受完的数据进行处理
+                        Console.WriteLine("something needs to be handled");
+                        //if (n > 10)
+                        //{
+                        //    Dispatcher.Invoke(new Action(delegate
+                        //   {
+                        //       //dataSource1 = new ObservableDataSource<Point>();
+                        //       //graphWave1.DataSource = dataSource1;
+                        //       dataSource1.Collection.Clear();
+                        //       //for (int ii = 0; ii < n / 2; ii++)
+                        //       //{
+                        //       //    //ushort ushort_temp = BitConverter.ToUInt16(buf, 2 * ii);
+                        //       //    byte temp1 = (byte)Q_data.Dequeue();
+                        //       //    byte temp2 = (byte)Q_data.Dequeue();
+                        //       //    //int ushort_temp = (ushort)(buf_temp[2 * ii] << 8) | buf_temp[2 * ii + 1];//位操作最好加上强制转换，否则数据不对
+                        //       //    int ushort_temp = (ushort)(temp1 << 8) | temp2;//位操作最好加上强制转换，否则数据不对
+                        //       //    Point point1 = new Point(ii, ushort_temp);
+                        //       //    // 追加至Plot
+                        //       //    dataSource1.AppendAsync(base.Dispatcher, point1);
+                        //       //    //i++;
+                        //       //}//for
+                        //   }));
+                        //    for (int ii = 0; ii < n / 2; ii++)
+                        //    {
+                        //        //ushort ushort_temp = BitConverter.ToUInt16(buf, 2 * ii);
+                        //        byte temp1 = (byte)Q_data.Dequeue();
+                        //        byte temp2 = (byte)Q_data.Dequeue();
+                        //        //int ushort_temp = (ushort)(buf_temp[2 * ii] << 8) | buf_temp[2 * ii + 1];//位操作最好加上强制转换，否则数据不对
+                        //        int ushort_temp = (ushort)(temp1 << 8) | temp2;//位操作最好加上强制转换，否则数据不对
+                        //        Point point1 = new Point(i_count++, ushort_temp);
+                        //        // 追加至Plot
+                        //        dataSource1.AppendAsync(base.Dispatcher, point1);
+                        //        //i++;
+                        //        //方便显示在text中
+                        //    }//for
+
+                        //}
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("定时处理错误：" + ex.Message);
+                }
+            }
         }
         //int xaxis = 0;
         //int group = 1024;
@@ -133,67 +289,7 @@ namespace Wave_test
 
             //plotter.Viewport.Visible = new System.Windows.Rect(xaxis, -2, group, 4);//主要注意这里一行
 
-            if (Usart.IsOpen == false) return;
-            try
-            {
-                //记录缓存数量
-                //int n = Usart.BytesToRead;
-
-                int n_thresh = 2048;
-                int n = Q_data.Count;
-               //Console.WriteLine("n={0}", n);
-                if (n == 0) return;
-
-                if (n >= n_thresh)
-                {
-                    //声明一个临时数组来存储当前来的串口数据
-                    byte[] buf_temp = new byte[n_thresh];
-
-                    //读取缓冲数据
-                   // Usart.Read(buf, 0, n_thresh);
-                    //Console.WriteLine("n={0}", n_thresh);
-
-                    //丢弃接受缓冲区数据
-                    //Usart.DiscardInBuffer();
-
-
-                    dataSource1 = new ObservableDataSource<Point>();
-                    graphWave1.DataSource = dataSource1;
-
-                    for (int ii = 0; ii < n_thresh / 2; ii++)
-                    {
-                        //ushort ushort_temp = BitConverter.ToUInt16(buf, 2 * ii);
-                        byte temp1 = Q_data.Dequeue();
-                        byte temp2 = Q_data.Dequeue();
-                        //int ushort_temp = (ushort)(buf_temp[2 * ii] << 8) | buf_temp[2 * ii + 1];//位操作最好加上强制转换，否则数据不对
-                        int ushort_temp = (ushort)(temp1 << 8) | temp2;//位操作最好加上强制转换，否则数据不对
-                        Point point1 = new Point(ii, ushort_temp);
-                        // 追加至Plot
-                        dataSource1.AppendAsync(base.Dispatcher, point1);
-                        //i++;
-                        //方便显示在text中
-                        buf_temp[2 * ii] = temp1;
-                        buf_temp[2 * ii + 1] = temp2;
-                    }//for
-
-                    if (IsSerialDataDisplay==true)
-                    {
-                        string tempStr = " ";
-                        interfaceUpdateHandle = new HandleInterfaceUpdateDelagate(UpdateTextBox);//实例化委托对象                 
-                        Dispatcher.Invoke(interfaceUpdateHandle, new string[] { Encoding.ASCII.GetString(buf_temp) });
-                    }
-
-                }//if
-                else { 
-                   //未接受完的数据进行处理
-                    Console.WriteLine("something needs to be handled");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("定时处理错误：" + ex.Message);
-            }
+            
         }
 
         private void UpdateTextBox(string text) 
@@ -220,13 +316,13 @@ namespace Wave_test
                 Usart.Parity = System.IO.Ports.Parity.None;
 
                 //串口数据接收区大小
-                Usart.ReadBufferSize = 4096*2;
+                Usart.ReadBufferSize = 4096*20;
                 //准备就绪
-                Usart.DtrEnable = true;//启用控制终端就续信号
-                Usart.RtsEnable = true; //启用请求发送信号
+                //Usart.DtrEnable = true;//启用控制终端就续信号
+                //Usart.RtsEnable = true; //启用请求发送信号
                 //设置数据读取超时为1秒
-              // Usart.ReadTimeout = 1000;
-               Usart.ReceivedBytesThreshold = 10;
+               Usart.ReadTimeout = 5000;
+               Usart.ReceivedBytesThreshold = 1024;
                Usart.DataReceived += new SerialDataReceivedEventHandler(Usart_DataReceived);//DataReceived事件委托
 
                 Usart.PortName = ComboBox_SerialName.SelectionBoxItem.ToString();
@@ -259,24 +355,38 @@ namespace Wave_test
             {
                 //记录缓存数量
                 int n = Usart.BytesToRead;
-               // Console.WriteLine("n={0}", n);
 
-                if (n == 0) return;
-
-                //if (n > 500) 
-                //{
-                //声明一个临时数组来存储当前来的串口数据
-                byte[] buf = new byte[n];
-
-                //读取缓冲数据
-                Usart.Read(buf, 0, n);
-
-                //丢弃接受缓冲区数据
-               // Usart.DiscardInBuffer();
-                for (int i = 0; i < n; i++) {
-                    Q_data.Enqueue(buf[i]);//队列在多线程时偶尔会出现“源数组长度不足，请检查Srcindex和长度以及数组的下限”错误，这里没有处理
+                if (n == 0) 
+                {
+                    Usart.DiscardInBuffer();
+                    return; 
                 }
 
+                if (n > 1024 * 6)
+                {
+                    n = 1024 * 6;
+                }
+                Console.WriteLine("n={0}", n);
+
+                if (n > 10)
+                {
+                    //声明一个临时数组来存储当前来的串口数据
+                    byte[] buf = new byte[n];
+
+                    lock (Q_data.SyncRoot)
+                    {
+                        //读取缓冲数据
+                        Usart.Read(buf, 0, n);
+
+                        //丢弃接受缓冲区数据
+                        // Usart.DiscardInBuffer();
+                        for (int i = 0; i < n; i++)
+                        {
+                            Q_data.Enqueue(buf[i]);//队列在多线程时偶尔会出现“源数组长度不足，请检查Srcindex和长度以及数组的下限”错误，这里没有处理
+                        }
+
+                    }
+                }
             }
             catch (Exception ex)
             {
