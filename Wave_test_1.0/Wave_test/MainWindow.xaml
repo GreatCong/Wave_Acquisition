@@ -3,18 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:oxy="http://oxyplot.org/wpf" x:Class="Wave_test.MainWindow"
         xmlns:local="clr-namespace:Wave_test"
-        Title="MainWindow" Height="531.593" Width="890.659" Icon="ooopic.ico">
+        Title="MainWindow" Height="500" Width="800" Icon="ooopic.ico">
 
     <Grid>
-        <oxy:PlotView HorizontalAlignment="Left" Height="349" Margin="24,31,0,0" VerticalAlignment="Top" Width="600" Model="{Binding Path=SimplePlotModel}"/>
-        <ComboBox x:Name="ComboBox_SerialName" HorizontalAlignment="Left" Margin="650,59,0,0" VerticalAlignment="Top" Width="78" Height="24" DropDownOpened="ComboBox_SerialName_DropDownOpened"/>
-        <Button x:Name="Button_SerialOpen" Content="Open" HorizontalAlignment="Left" Margin="767,61,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.069,-0.112" Click="Button_SerialOpen_Click"/>
-        <TextBox x:Name="TextBox_SerialReceive" HorizontalAlignment="Left" Height="130" Margin="650,122,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="192" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-        <TextBox x:Name="TextBox_SerialSend" HorizontalAlignment="Left" Height="41" Margin="650,292,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="201" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Text="Y"/>
-        <Button x:Name="Button_SerialSend" Content="Send" HorizontalAlignment="Left" Margin="653,349,0,0" VerticalAlignment="Top" Width="75" Click="Button_SerialSend_Click"/>
-        <Button x:Name="Button_SerialSend_clear" Content="Clear" HorizontalAlignment="Left" Margin="776,349,0,0" VerticalAlignment="Top" Width="75"/>
+        <oxy:PlotView HorizontalAlignment="Left" Height="349" Margin="20,29,0,0" VerticalAlignment="Top" Width="538" Model="{Binding Path=SimplePlotModel}"/>
+        <ComboBox x:Name="ComboBox_SerialName" HorizontalAlignment="Left" Margin="584,55,0,0" VerticalAlignment="Top" Width="78" Height="24" DropDownOpened="ComboBox_SerialName_DropDownOpened"/>
+        <Button x:Name="Button_SerialOpen" Content="Open" HorizontalAlignment="Left" Margin="687,57,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.069,-0.112" Click="Button_SerialOpen_Click"/>
+        <TextBox x:Name="TextBox_SerialReceive" HorizontalAlignment="Left" Height="130" Margin="584,113,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="189" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+        <TextBox x:Name="TextBox_SerialSend" HorizontalAlignment="Left" Height="41" Margin="584,271,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="189" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Text="Y"/>
+        <Button x:Name="Button_SerialSend" Content="Send" HorizontalAlignment="Left" Margin="587,340,0,0" VerticalAlignment="Top" Width="75" Click="Button_SerialSend_Click"/>
+        <Button x:Name="Button_SerialSend_clear" Content="Clear" HorizontalAlignment="Left" Margin="687,340,0,0" VerticalAlignment="Top" Width="75"/>
         <Button x:Name="Button_PlotStart" Content="Start" HorizontalAlignment="Left" Margin="84,403,0,0" VerticalAlignment="Top" Width="75" Click="Button_PlotStart_Click"/>
         <Button x:Name="Button_PlotStop" Content="Stop" HorizontalAlignment="Left" Margin="215,403,0,0" VerticalAlignment="Top" Width="75" Click="Button_PlotStop_Click"/>
+        <Label Content="SerialPort" HorizontalAlignment="Left" Margin="584,24,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

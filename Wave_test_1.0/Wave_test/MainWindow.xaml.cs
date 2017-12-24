@@ -29,12 +29,14 @@ namespace Wave_test
             InitializeComponent();
             this.Title = this.Title + " --Mutiwave -- by Liucongjun";//列出标题
 
-            _viewModel = new PlotViewModel();
+            _viewModel = new PlotViewModel();//初始化model
             //画直线
             this.DataContext = _viewModel;
-            _viewModel.SimplePlotModel.Title = "This is a test";
+            _viewModel.SimplePlotModel.Title = "This is a test";//plot标题
         }
 
+        #region 串口消息
+        //打开串口
         private void Button_SerialOpen_Click(object sender, RoutedEventArgs e)
         {
             if (Button_SerialOpen.Content.Equals("Open"))
@@ -85,7 +87,33 @@ namespace Wave_test
             }
         }
 
-        //串口事件处理函数
+        //下拉串口选择框
+        private void ComboBox_SerialName_DropDownOpened(object sender, EventArgs e)
+        {
+            string[] names = SerialPort.GetPortNames();
+            ComboBox_SerialName.Items.Clear();
+            for (int i = 0; i < names.Length; i++)
+            {
+                ComboBox_SerialName.Items.Add(names[i]);
+            }
+        }
+
+        //发送数据
+        private void Button_SerialSend_Click(object sender, RoutedEventArgs e)
+        {
+            if (Usart.IsOpen == false)
+            {
+                MessageBox.Show("请开启串口！", "错误");
+                return;
+            }
+
+            Usart.Write(TextBox_SerialSend.Text);
+            //延时100ms
+        }
+
+        #endregion
+
+        #region 串口事件处理
         private void Usart_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             if (Usart.IsOpen == false) return;
@@ -125,28 +153,7 @@ namespace Wave_test
                 }
             //throw new NotImplementedException();
         }
-
-        private void ComboBox_SerialName_DropDownOpened(object sender, EventArgs e)
-        {
-            string[] names = SerialPort.GetPortNames();
-            ComboBox_SerialName.Items.Clear();
-            for (int i = 0; i < names.Length; i++)
-            {
-                ComboBox_SerialName.Items.Add(names[i]);
-            }
-        }
-
-        private void Button_SerialSend_Click(object sender, RoutedEventArgs e)
-        {
-            if (Usart.IsOpen == false)
-            {
-                MessageBox.Show("请开启串口！", "错误");
-                return;
-            }
-
-            Usart.Write(TextBox_SerialSend.Text);
-            //延时100ms
-        }
+        #endregion
 
         private void Button_PlotStart_Click(object sender, RoutedEventArgs e)
         {
