@@ -28,11 +28,9 @@ namespace Wave_test
         {
             InitializeComponent();
             this.Title = this.Title + " --Mutiwave -- by Liucongjun";//列出标题
-
-            _viewModel = new PlotViewModel();//初始化model
-            //画直线
-            this.DataContext = _viewModel;
-            _viewModel.SimplePlotModel.Title = "This is a test";//plot标题
+          
+            LoadModelData();//初始化
+         
         }
 
         #region 串口消息
@@ -155,14 +153,51 @@ namespace Wave_test
         }
         #endregion
 
+        #region Init
+        void LoadModelData()
+        {            
+            _viewModel = new PlotViewModel();//初始化model
+            //画直线
+            this.DataContext = _viewModel;
+            _viewModel.SimplePlotModel.Title = "This is a test";//plot标题
+
+            //绑定数据
+            this.TextBoxPlot_dataX.SetBinding(TextBox.TextProperty, new Binding("Data_value") { Source = _viewModel.data_x = new Data_XYZ() });
+            this.TextBoxPlot_dataY.SetBinding(TextBox.TextProperty, new Binding("Data_value") { Source = _viewModel.data_y = new Data_XYZ() });
+            this.TextBoxPlot_dataZ.SetBinding(TextBox.TextProperty, new Binding("Data_value") { Source = _viewModel.data_z = new Data_XYZ() });
+
+            ComboBox_PlotChannel_choose.Items.Add("1 Channnel");
+            ComboBox_PlotChannel_choose.Items.Add("2 Channnels");
+            ComboBox_PlotChannel_choose.Items.Add("3 Channnels");
+            //默认显示的是1个通道
+            ComboBox_PlotChannel_choose.SelectedIndex = 0;// -1表示未选中 
+            
+        }
+        #endregion
+
+        #region Plot消息
+        //Start plot
         private void Button_PlotStart_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.isStop = false;
-        }
+            _viewModel.Q_data.Clear();
 
+            //改变显示的Channel数
+            if (Usart.IsOpen == false)//串口不关闭，改变会有问题
+            {
+                _viewModel.setChannel_num(ComboBox_PlotChannel_choose.SelectedIndex + 1);
+            }
+
+            ComboBox_PlotChannel_choose.IsEnabled = false;
+        }
+        //Stop Plot
         private void Button_PlotStop_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.isStop = true;
+            ComboBox_PlotChannel_choose.IsEnabled = true;
         }
+        #endregion
+
     }
+
 }
