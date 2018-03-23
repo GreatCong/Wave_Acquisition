@@ -34,6 +34,8 @@ namespace Wave_test
 
         public PlotModel SimplePlotModel { get; set; }
 
+        #region public functions
+
         public void setChannel_num(int num)
         {
             dataChannel_display = num;
@@ -53,6 +55,8 @@ namespace Wave_test
         {
             return dataNum_display;
         }
+
+        #endregion
 
         public PlotViewModel()
         {
@@ -165,35 +169,38 @@ namespace Wave_test
                                     switch (dataChannel_display)
                                     { 
                                         case 1:
-                                            for (int i = 0; i < dataNum_display; i++)
+                                            lock (Q_data.SyncRoot)
                                             {
-                                                if (Int_TabControl_TransportChoose_select == 0)
+                                                for (int i = 0; i < dataNum_display; i++)
                                                 {
-                                                    ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                }
-                                                else {
-                                                    //network与USB的解析方向相反
-                                                    ushort_temp[0] = (byte)Q_data.Dequeue()|(ushort)((byte)Q_data.Dequeue() << 8) ;//位操作最好加上强制转换，否则数据不对 
-                                                }
-                                              
-                                               
-                                              lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0]));//X通道
-                                              
-                                              //handles
-                                              data_sum[0] += ushort_temp[0];
-                                              if (ushort_temp[0] > max_data_temp[0])//寻找最大值
-                                              {
-                                                  max_data_temp[0] = ushort_temp[0];
-                                              }
-                                              last_data_temp[0] = ushort_temp[0];
-                                            }
-                                            data_average[0] = max_data_temp[0]-data_sum[0] / dataNum_display;
-                                            //更改单位为mV
-                                            data_average[0] = data_average[0] * 10000 / 32768;
-                                            data_x.Data_value = "x:" + data_average[0].ToString();
-                                            data_y.Data_value = "y:NULL";
-                                            data_z.Data_value = "z:NULL";
+                                                    if (Int_TabControl_TransportChoose_select == 0)
+                                                    {
+                                                        ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                                    }
+                                                    else
+                                                    {
+                                                        //network与USB的解析方向相反
+                                                        ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对 
+                                                    }
 
+
+                                                    lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0]));//X通道
+
+                                                    //handles
+                                                    data_sum[0] += ushort_temp[0];
+                                                    if (ushort_temp[0] > max_data_temp[0])//寻找最大值
+                                                    {
+                                                        max_data_temp[0] = ushort_temp[0];
+                                                    }
+                                                    last_data_temp[0] = ushort_temp[0];
+                                                }
+                                                data_average[0] = max_data_temp[0] - data_sum[0] / dataNum_display;
+                                                //更改单位为mV
+                                                data_average[0] = data_average[0] * 10000 / 32768;
+                                                data_x.Data_value = "x:" + data_average[0].ToString();
+                                                data_y.Data_value = "y:NULL";
+                                                data_z.Data_value = "z:NULL";
+                                            }
                                             break;
                                         case 2:
                                             for (int i = 0; i < dataNum_display; i++)

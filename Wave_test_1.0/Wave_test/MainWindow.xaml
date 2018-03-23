@@ -3,64 +3,129 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:oxy="http://oxyplot.org/wpf" x:Class="Wave_test.MainWindow"
         xmlns:local="clr-namespace:Wave_test"
-        Title="MainWindow" Height="550" Width="1000" Icon="ooopic.ico">
+        Title="MainWindow" Height="550" Width="1050" Icon="ooopic.ico" Closing="Window_Closing">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="159*"/>
-            <ColumnDefinition Width="89*"/>
+            <ColumnDefinition Width="146*"/>
+            <ColumnDefinition Width="298*"/>
+            <ColumnDefinition Width="77*"/>
         </Grid.ColumnDefinitions>
-        <oxy:PlotView HorizontalAlignment="Left" Height="349" Margin="20,29,0,0" VerticalAlignment="Top" Width="571" Model="{Binding Path=SimplePlotModel}"/>
-        <TextBox x:Name="TextBox_SerialReceive" HorizontalAlignment="Left" Height="97" Margin="14,174,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="286" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Grid.Column="1"/>
-        <TextBox x:Name="TextBox_SerialSend" HorizontalAlignment="Left" Height="41" Margin="14,276,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="286" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Text="Y" Grid.Column="1"/>
-        <Button x:Name="Button_SerialSend" Content="Send" HorizontalAlignment="Left" Margin="59,331,0,0" VerticalAlignment="Top" Width="75" Click="Button_SerialSend_Click" Grid.Column="1" Height="22"/>
-        <Button x:Name="Button_SerialSend_clear" Content="Clear" HorizontalAlignment="Left" Margin="159,331,0,0" VerticalAlignment="Top" Width="75" Grid.Column="1" Height="22" Click="Button_SerialSend_clear_Click"/>
-        <Button x:Name="Button_PlotStart" Content="Start" HorizontalAlignment="Left" Margin="59,378,0,0" VerticalAlignment="Top" Width="75" Click="Button_PlotStart_Click" Grid.Column="1" Height="22"/>
-        <Button x:Name="Button_PlotStop" Content="Stop" HorizontalAlignment="Left" Margin="159,378,0,0" VerticalAlignment="Top" Width="75" Click="Button_PlotStop_Click" Grid.Column="1" Height="22"/>
-        <ComboBox x:Name="ComboBox_PlotChannel_choose" HorizontalAlignment="Left" Margin="14,147,0,0" VerticalAlignment="Top" Width="120" Height="22" Grid.Column="1"/>
-        <TextBox x:Name="TextBoxPlot_dataX" HorizontalAlignment="Left" Height="23" Margin="20,403,0,0" TextWrapping="Wrap" Text="X" VerticalAlignment="Top" Width="100"/>
-        <TextBox x:Name="TextBoxPlot_dataY" HorizontalAlignment="Left" Height="23" Margin="217,403,0,0" TextWrapping="Wrap" Text="Y" VerticalAlignment="Top" Width="100"/>
-        <TextBox x:Name="TextBoxPlot_dataZ" HorizontalAlignment="Left" Height="23" Margin="426,403,0,0" TextWrapping="Wrap" Text="Z" VerticalAlignment="Top" Width="100"/>
-        <Button x:Name="Start_acq" Content="开始示波" Grid.Column="1" HorizontalAlignment="Left" Margin="59,425,0,0" VerticalAlignment="Top" Width="75" Click="Start_acq_Click" Height="22"/>
-        <Button x:Name="Stop_acq" Content="停止示波" HorizontalAlignment="Left" Margin="159,425,0,0" VerticalAlignment="Top" Width="75" Grid.Column="1" Click="Stop_acq_Click" Height="22"/>
-        <TabControl x:Name="TabControl_TransportChoose" HorizontalAlignment="Left" Height="114" Margin="14,10,0,0" VerticalAlignment="Top" Width="320" Grid.Column="1" SelectionChanged="TabControl_TransportChoose_SelectionChanged">
-            <TabItem x:Name="USB_tabItem" Header="USB">
-                <Grid Background="#FFE5E5E5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="43*"/>
-                        <ColumnDefinition Width="9*"/>
-                        <ColumnDefinition Width="71*"/>
-                        <ColumnDefinition Width="191*"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="端口号" HorizontalAlignment="Left" Margin="8,11,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
-                    <ComboBox x:Name="ComboBox_SerialName" HorizontalAlignment="Left" Margin="20,14,0,0" VerticalAlignment="Top" Width="97" Height="24" DropDownOpened="ComboBox_SerialName_DropDownOpened" Grid.Column="2" Grid.ColumnSpan="2"/>
-                    <Button x:Name="Button_SerialOpen" Content="Open" HorizontalAlignment="Left" Margin="70,13,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.069,-0.112" Click="Button_SerialOpen_Click" Grid.Column="3"/>
-                </Grid>
-            </TabItem>
-            <TabItem x:Name="WiFi_tabItem" Header="WiFi">
-                <Grid Background="#FFE5E5E5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="12*"/>
-                        <ColumnDefinition Width="8*"/>
-                        <ColumnDefinition Width="209*"/>
-                        <ColumnDefinition Width="86*"/>
-                    </Grid.ColumnDefinitions>
-                    <ComboBox x:Name="ComboxBox_Wifi_protocal" HorizontalAlignment="Left" Margin="56.5,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComboxBox_Wifi_protocal_SelectionChanged" Grid.Column="2"/>
-                    <Label Content="协议" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
-                    <Button x:Name="Button_Wifi_connect" Content="连接" HorizontalAlignment="Left" Margin="0,14,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.073,0.444" Grid.Column="3" Click="Button_Wifi_connect_Click"/>
-                    <TextBox x:Name="TextBox_wifi_endpoint" Height="23" TextWrapping="Wrap" Text="TextBox" Margin="56.5,52,55,12" Grid.ColumnSpan="2" KeyDown="TextBox_wifi_endpoint_KeyDown" Grid.Column="2"/>
-                    <Label x:Name="Label_ep_switch" Content="近程端点" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" KeyDown="Label_ep_switch_KeyDown" Grid.ColumnSpan="3"/>
-                </Grid>
-            </TabItem>
-        </TabControl>
-        <TextBox x:Name="TextBox_netWorkDataNum" HorizontalAlignment="Left" Height="23" Margin="83,439,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label Content="数据点数" HorizontalAlignment="Left" Margin="20,437,0,0" VerticalAlignment="Top"/>
-        <Label Content="数据包数" HorizontalAlignment="Left" Margin="217,437,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="TextBox_netWorkPkgNum" HorizontalAlignment="Left" Height="23" Margin="293,439,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label Content="时长" HorizontalAlignment="Left" Margin="426,439,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="TextBox_netWorkTbPeriod" HorizontalAlignment="Left" Height="23" Margin="471,439,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <CheckBox x:Name="CheckBox_IsSerialDataDis" Content="Display_ReceiveData" Grid.Column="1" HorizontalAlignment="Left" Margin="168,147,0,0" VerticalAlignment="Top" Click="CheckBox_IsSerialDataDis_Click"/>
-        <Label x:Name="Labe_PlotThreadState" Content="" Grid.Column="1" HorizontalAlignment="Left" Margin="257,378,0,0" VerticalAlignment="Top" Width="16" Height="15" RenderTransformOrigin="0.19,1.091" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+        <GroupBox Header="GroupBox" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top" Height="213" Width="274">
+            <TabControl HorizontalAlignment="Left" Height="191" VerticalAlignment="Bottom" Width="262">
+                <TabItem Header="DataDisplay">
+                    <Grid Background="#FFE5E5E5">
+                        <TextBox x:Name="TextBox_SerialReceive" TextWrapping="Wrap" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Margin="0,22,-1,32"/>
+                        <TextBox x:Name="TextBox_SerialSend" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="187" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Text="Y" Margin="0,132,0,0"/>
+                        <Button x:Name="Button_SmartSend" Content="Send" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60" Click="Button_SmartSend_Click" Height="22" Margin="192,132,0,0" RenderTransformOrigin="0.507,6.818"/>
+                        <CheckBox x:Name="CheckBox_data_isHex" Content="Hex" HorizontalAlignment="Left" Margin="192,1,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.712,0.375"/>
+                        <CheckBox x:Name="CheckBox_IsSerialDataDis" Content="Display_ReceiveData" HorizontalAlignment="Left" Margin="4,1,0,0" VerticalAlignment="Top" Click="CheckBox_IsSerialDataDis_Click" Height="16" Width="129"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Document">
+                    <Grid Background="#FFE5E5E5">
+                        <Button x:Name="Button_data_save" Content="保存" HorizontalAlignment="Left" Margin="19,48,0,0" VerticalAlignment="Top" Width="75"/>
+                        <Button x:Name="Button_data_load" Content="加载" HorizontalAlignment="Left" Margin="147,48,0,0" VerticalAlignment="Top" Width="75"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Filters">
+                    <Grid Background="#FFE5E5E5"/>
+                </TabItem>
+            </TabControl>
+        </GroupBox>
+
+        <oxy:PlotView HorizontalAlignment="Left" Height="385" Margin="10,11,0,0" VerticalAlignment="Top" Width="576" Model="{Binding SimplePlotModel}" Grid.Column="1"/>
+        <!--<Button x:Name="Stop_acq" Content="停止示波" HorizontalAlignment="Left" Margin="159,425,0,0" VerticalAlignment="Top" Width="75" Grid.Column="1" Click="Stop_acq_Click" Height="22"/>-->
+        <TextBox x:Name="TextBox_netWorkDataNum" HorizontalAlignment="Left" Height="23" Margin="70,429,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="1" Text="数据点数"/>
+        <Label Content="数据点数" HorizontalAlignment="Left" Margin="7,426,0,0" VerticalAlignment="Top" Grid.Column="1" Height="26" Width="58"/>
+        <Label Content="数据包数" HorizontalAlignment="Left" Margin="207,429,0,0" VerticalAlignment="Top" Grid.Column="1" Height="26" Width="58"/>
+        <TextBox x:Name="TextBox_netWorkPkgNum" HorizontalAlignment="Left" Height="23" Margin="270,432,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="1" Text="数据包数"/>
+        <TextBox x:Name="TextBox_netWorkTbPeriod" HorizontalAlignment="Left" Height="23" Margin="458,431,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="1" Text="时长"/>
+        <StatusBar x:Name="StatusBar_state" HorizontalAlignment="Left" Height="37" Margin="0,483,0,0" VerticalAlignment="Top" Width="1042" Grid.ColumnSpan="3" Background="#FF007ACC">
+            <StatusBarItem HorizontalAlignment="Left">
+                <TextBlock x:Name="statusInfoTextBlock" Foreground="White"><Run Text="准备就绪！"/></TextBlock>
+            </StatusBarItem>
+            <!--<StatusBarItem>
+                <ProgressBar Name="progressBar" Foreground="White" BorderBrush="White" Background="{Binding ElementName=statusBar, Path=Background}" Visibility="Collapsed" Width="150" Height="10" Value="10" SmallChange="1" IsIndeterminate="True" Margin="10,0,0,0"></ProgressBar>
+            </StatusBarItem>-->
+            <StatusBarItem Margin="0,0,0,0" x:Name="dataRecvStatusBarItem" Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Height="5" Width="5" Fill="White" Margin="0,0,5,0"/>
+                    <Ellipse Height="5" Width="5" Fill="White" Margin="0,0,5,0"/>
+                    <Ellipse Height="5" Width="5" Fill="White" Margin="0,0,5,0"/>
+                    <Ellipse Height="5" Width="5" Fill="White" Margin="0,0,5,0"/>
+                    <Ellipse Height="5" Width="5" Fill="White" Margin="0,0,5,0"/>
+                    <Ellipse Height="5" Width="5" Fill="White"/>
+                </StackPanel>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right" Margin="0,0,10,0">
+                <TextBlock x:Name="timeDateTextBlock" Foreground="White"/>
+            </StatusBarItem>
+        </StatusBar>
+        <GroupBox Header="GroupBox" HorizontalAlignment="Left" Margin="10,356,0,0" VerticalAlignment="Top" Height="122" Width="274">
+            <Grid Margin="0,0,-2,0">
+                <Button x:Name="Start_acq" Content="开始采集" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="75" Click="Start_acq_Click" Height="22"/>
+                <Button x:Name="Button_PlotStart" Content="Start" HorizontalAlignment="Left" Margin="10,13,0,0" VerticalAlignment="Top" Width="75" Click="Button_PlotStart_Click" Height="22"/>
+                <Button x:Name="Button_PlotStop" Content="Stop" HorizontalAlignment="Left" Margin="105,13,0,0" VerticalAlignment="Top" Width="75" Click="Button_PlotStop_Click" Height="22"/>
+                <Button x:Name="Button_SmartSend_clear" Content="Clear" HorizontalAlignment="Left" Margin="105,68,0,0" VerticalAlignment="Top" Width="75" Height="22" Click="Button_SmartSend_clear_Click"/>
+                <Label x:Name="Labe_PlotThreadState" Content="" HorizontalAlignment="Left" Margin="211,13,0,0" VerticalAlignment="Top" Width="16" Height="15" RenderTransformOrigin="0.19,1.091" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+            </Grid>
+        </GroupBox>
+        <Label Content="时长" HorizontalAlignment="Left" Margin="395,432,0,0" VerticalAlignment="Top" Grid.Column="1" Height="26" Width="58"/>
+        <GroupBox Header="GroupBox" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Height="138" Width="274">
+            <TabControl x:Name="TabControl_TransportChoose" HorizontalAlignment="Left" Height="114" VerticalAlignment="Top" Width="270" SelectionChanged="TabControl_TransportChoose_SelectionChanged">
+                <TabItem x:Name="USB_tabItem" Header="USB">
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="43*"/>
+                            <ColumnDefinition Width="9*"/>
+                            <ColumnDefinition Width="71*"/>
+                            <ColumnDefinition Width="191*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="端口号" HorizontalAlignment="Left" Margin="0,9,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+                        <ComboBox x:Name="ComboBox_SerialName" HorizontalAlignment="Left" Margin="20,13,0,0" VerticalAlignment="Top" Width="97" Height="24" DropDownOpened="ComboBox_SerialName_DropDownOpened" Grid.Column="2" Grid.ColumnSpan="2"/>
+                        <Button x:Name="Button_SerialOpen" Content="Open" HorizontalAlignment="Left" Margin="73,29,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.069,-0.112" Click="Button_SerialOpen_Click" Grid.Column="3"/>
+                        <Label Content="波特率" HorizontalAlignment="Left" Margin="0,46,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+                        <ComboBox x:Name="ComboBox_SerialBauttRate" Grid.Column="2" HorizontalAlignment="Left" Margin="20,50,0,0" VerticalAlignment="Top" Width="97" Grid.ColumnSpan="2"/>
+                    </Grid>
+                </TabItem>
+                <TabItem x:Name="WiFi_tabItem" Header="WiFi">
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="12*"/>
+                            <ColumnDefinition Width="8*"/>
+                            <ColumnDefinition Width="209*"/>
+                            <ColumnDefinition Width="86*"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="ComboxBox_Wifi_protocal" HorizontalAlignment="Left" Margin="19,14,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComboxBox_Wifi_protocal_SelectionChanged" Grid.Column="2"/>
+                        <Label Content="协议" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
+                        <Button x:Name="Button_Wifi_connect" Content="连接" HorizontalAlignment="Left" Margin="160,14,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.073,0.444" Grid.Column="2" Click="Button_Wifi_connect_Click" Grid.ColumnSpan="2"/>
+                        <TextBox x:Name="TextBox_wifi_endpoint" Height="23" TextWrapping="Wrap" Text="TextBox" Margin="45,51,10,8" Grid.ColumnSpan="2" KeyDown="TextBox_wifi_endpoint_KeyDown" Grid.Column="2"/>
+                        <Label x:Name="Label_ep_switch" Content="近程端点" HorizontalAlignment="Left" Margin="0,49,0,0" VerticalAlignment="Top" KeyDown="Label_ep_switch_KeyDown" Grid.ColumnSpan="3"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </GroupBox>
+        <GroupBox Grid.Column="2" Header="Acquisition" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Height="288" Width="134">
+            <Grid HorizontalAlignment="Left" Height="262" Margin="-2,0,0,0" VerticalAlignment="Top" Width="124">
+                <ComboBox x:Name="ComboBox_PlotChannel_choose" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top" Width="100" Height="22"/>
+                <Label Content="CHs:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="CheckBox_dataCH1_isDisplay" Content="CH1" HorizontalAlignment="Left" Margin="10,63,0,0" VerticalAlignment="Top" Height="16" Width="73"/>
+                <CheckBox x:Name="CheckBox_dataCH2_isDisplay" Content="CH2" HorizontalAlignment="Left" Margin="10,84,0,0" VerticalAlignment="Top" Height="16" Width="73"/>
+                <CheckBox x:Name="CheckBox_dataCH3_isDisplay" Content="CH3" HorizontalAlignment="Left" Margin="10,106,0,0" VerticalAlignment="Top" Height="16" Width="73"/>
+                <TextBox x:Name="TextBox_plotData_samples" HorizontalAlignment="Left" Height="23" Margin="10,162,0,0" TextWrapping="Wrap" Text="1024" VerticalAlignment="Top" Width="92" RenderTransformOrigin="0.25,0.391"/>
+                <Label Content="Samples:" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top"/>
+                <Label Content="fs/kHz" HorizontalAlignment="Left" Margin="11,195,0,-16" VerticalAlignment="Top"/>
+                <TextBox x:Name="Text_acquisition" HorizontalAlignment="Left" Height="23" Margin="11,226,0,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="91"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Column="2" Header="Analysis" HorizontalAlignment="Left" Margin="10,308,0,0" VerticalAlignment="Top" Height="170" Width="134">
+            <Grid HorizontalAlignment="Left" Height="148" VerticalAlignment="Top" Width="124" Margin="0,0,-2,0">
+                <TextBox x:Name="TextBoxPlot_dataX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="X" VerticalAlignment="Top" Width="100" Margin="12,22,0,0"/>
+                <TextBox x:Name="TextBoxPlot_dataY" HorizontalAlignment="Left" Height="23" Margin="12,66,0,0" TextWrapping="Wrap" Text="Y" VerticalAlignment="Top" Width="100"/>
+                <TextBox x:Name="TextBoxPlot_dataZ" HorizontalAlignment="Left" Height="23" Margin="12,109,0,0" TextWrapping="Wrap" Text="Z" VerticalAlignment="Top" Width="100"/>
+            </Grid>
+        </GroupBox>
 
     </Grid>
 </Window>
