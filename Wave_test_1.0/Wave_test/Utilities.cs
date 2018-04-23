@@ -416,6 +416,12 @@ namespace Wave_test
             }
             statusInfoTextBlock.Text = message;
         }
+
+        //只显示文本的变化
+        private void Information(string message)
+        {           
+            statusInfoTextBlock.Text = message;
+        }
         #endregion
     }
 }

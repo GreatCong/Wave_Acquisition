@@ -423,6 +423,13 @@ namespace Wave_test
 
                             netWork_dataNum = netWork_dataNum + netWork_length;
                             textbox_netWorkDataNum_dis.Value_textDisplay = netWork_dataNum.ToString();
+
+                            if (isSerialDataDispaly)//checked will be dispalyed
+                            {
+                                string str = Encoding.ASCII.GetString(buffMsgRec, 0, netWork_length);
+                                textbox_receive_dis.Value_textDisplay += str;
+                            }
+
                             break;
                         case (int)NetworkProtocalType.TCP_Client:
                             netWork_length = sockConnection.Receive(buffMsgRec);

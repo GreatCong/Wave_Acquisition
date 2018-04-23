@@ -69,6 +69,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="configuration\Configuration.cs" />
+    <Compile Include="Menu_Events.cs" />
     <Compile Include="NetWorks.cs" />
     <Compile Include="Serial.cs" />
     <Compile Include="StaTimers.cs" />

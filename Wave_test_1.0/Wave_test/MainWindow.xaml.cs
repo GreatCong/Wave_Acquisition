@@ -34,7 +34,7 @@ namespace Wave_test
         private Data_textDisplay textbox_netWorkDataNum_dis;
         private Data_textDisplay textBox_netWorkPkgNum_dis;
         private Data_textDisplay textBox_netWorkTbPeriod_dis;
-              
+
         //CheckBox
         private bool isSerialDataDispaly = false;
 
@@ -44,22 +44,23 @@ namespace Wave_test
         {
             InitializeComponent();
             this.Title = this.Title + " --Mutiwave -- by Liucongjun";//列出标题
-          
+
             LoadModelData();//初始化
             InitCore();
-         
+
         }
 
         #region Init
         void LoadModelData()
-        {            
+        {
             _viewModel = new PlotViewModel();//初始化model
             //画直线
             this.DataContext = _viewModel;
             _viewModel.SimplePlotModel.Title = "MutiWave Display";//plot标题           
 
         }
-        private void InitCore() {
+        private void InitCore()
+        {
             //绑定数据
             this.TextBoxPlot_dataX.SetBinding(TextBox.TextProperty, new Binding("Data_value") { Source = _viewModel.data_x = new Data_XYZ() });
             this.TextBoxPlot_dataY.SetBinding(TextBox.TextProperty, new Binding("Data_value") { Source = _viewModel.data_y = new Data_XYZ() });
@@ -95,7 +96,7 @@ namespace Wave_test
             //改变显示的Channel数
             //if (Usart.IsOpen == false)//串口不关闭，改变会有问题
             //{
-                _viewModel.setChannel_num(ComboBox_PlotChannel_choose.SelectedIndex + 1);
+            _viewModel.setChannel_num(ComboBox_PlotChannel_choose.SelectedIndex + 1);
             //}
 
             ComboBox_PlotChannel_choose.IsEnabled = false;
@@ -171,10 +172,12 @@ namespace Wave_test
         //tabcontrol 选择是USB还是network
         private void TabControl_TransportChoose_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TabControl_TransportChoose.SelectedItem == USB_tabItem) {
+            if (TabControl_TransportChoose.SelectedItem == USB_tabItem)
+            {
                 _viewModel.Int_TabControl_TransportChoose_select = 0;
             }
-            else if (TabControl_TransportChoose.SelectedItem == WiFi_tabItem) {
+            else if (TabControl_TransportChoose.SelectedItem == WiFi_tabItem)
+            {
                 _viewModel.Int_TabControl_TransportChoose_select = 1;
             }
         }
@@ -189,7 +192,7 @@ namespace Wave_test
             //}
 
             //Usart.Write(TextBox_SerialSend.Text);
-            byte[] byteArray = System.Text.Encoding.Default.GetBytes ( TextBox_SerialSend.Text );
+            byte[] byteArray = System.Text.Encoding.Default.GetBytes(TextBox_SerialSend.Text);
             SmartSend(byteArray);
             //延时100ms
         }
@@ -207,7 +210,8 @@ namespace Wave_test
         //窗口关闭消息
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (Usart.IsOpen) {
+            if (Usart.IsOpen)
+            {
                 Usart.Close();
             }
 
@@ -221,6 +225,5 @@ namespace Wave_test
         #endregion
 
     }
-       
 
 }
