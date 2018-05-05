@@ -79,6 +79,15 @@ namespace Wave_test
 
             Labe_PlotThreadState.Background = Brushes.Red;//设置初始化为红色
 
+            //初始化chal(1--3) checked
+            CheckBox_dataCH1_isDisplay.IsChecked = true;
+            CheckBox_dataCH2_isDisplay.IsChecked = true;
+            CheckBox_dataCH3_isDisplay.IsChecked = true;
+
+            textBox_CH1_bias.Text = _viewModel.getDisplay_bias(0).ToString();
+            textBox_CH2_bias.Text = _viewModel.getDisplay_bias(1).ToString();
+            textBox_CH3_bias.Text = _viewModel.getDisplay_bias(2).ToString();
+
             netWork_init();
             InitClockTimer();
             LoadConfig();//没有配置信息就直接返回
@@ -203,6 +212,63 @@ namespace Wave_test
             TextBox_SerialReceive.Text = "";//清除文本框的内容
         }
 
+        //通道1显示
+        private void CheckBox_dataCH1_isDisplay_Click(object sender, RoutedEventArgs e)
+        {
+            if (CheckBox_dataCH1_isDisplay.IsChecked == true)
+            {
+                _viewModel.is_dataCH1_Display = true;
+            }
+            else if (CheckBox_dataCH1_isDisplay.IsChecked == false)
+            {
+                _viewModel.is_dataCH1_Display = false;
+            }
+        }
+
+        //通道2显示
+        private void CheckBox_dataCH2_isDisplay_Click(object sender, RoutedEventArgs e)
+        {
+            if (CheckBox_dataCH2_isDisplay.IsChecked == true)
+            {
+                _viewModel.is_dataCH2_Display = true;
+            }
+            else if (CheckBox_dataCH2_isDisplay.IsChecked == false)
+            {
+                _viewModel.is_dataCH2_Display = false;
+            }
+        }
+
+        //通道3显示
+        private void CheckBox_dataCH3_isDisplay_Click(object sender, RoutedEventArgs e)
+        {
+            if (CheckBox_dataCH3_isDisplay.IsChecked == true)
+            {
+                _viewModel.is_dataCH3_Display = true;
+            }
+            else if (CheckBox_dataCH3_isDisplay.IsChecked == false)
+            {
+                _viewModel.is_dataCH3_Display = false;
+            }
+        }
+
+        //偏置显示Ch1
+        private void textBox_CH1_bias_KeyDown(object sender, KeyEventArgs e)
+        {
+            _viewModel.setDisplay_bias(0, Convert.ToInt32(textBox_CH1_bias.Text.ToString()));
+        }
+
+        //偏置显示Ch2
+        private void textBox_CH2_bias_KeyDown(object sender, KeyEventArgs e)
+        {
+            _viewModel.setDisplay_bias(1, Convert.ToInt32(textBox_CH2_bias.Text.ToString()));
+        }
+
+        //偏置显示Ch3
+        private void textBox_CH3_bias_KeyDown(object sender, KeyEventArgs e)
+        {
+            _viewModel.setDisplay_bias(2, Convert.ToInt32(textBox_CH3_bias.Text.ToString()));
+        }
+
         #endregion
 
         #region windows 窗体消息
@@ -222,7 +288,14 @@ namespace Wave_test
             }
         }
 
+
+
+
+
+
         #endregion
+
+        
 
     }
 

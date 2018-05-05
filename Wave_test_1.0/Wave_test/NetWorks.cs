@@ -45,8 +45,9 @@ namespace Wave_test
         Dictionary<int, Socket> dictSock = new Dictionary<int, Socket>();
         Dictionary<int, EndPoint> dictEndPoint = new Dictionary<int, EndPoint>();
 
-        string netWork_endpointp_client = "";//client的地址
+        string netWork_endpointp_client_Normal = "";//client的地址
         string netWork_port_server = "";//对于server而言，只需要端口号就可以了
+        string netWork_endpointp_client_Remote = "";//远程的client地址
         #endregion
 
         #region NetWork Function
@@ -61,9 +62,10 @@ namespace Wave_test
             //wifi_protocalType = "TCP Client";
             wifi_protocalType = (int)NetworkProtocalType.TCP_Client;
 
-            netWork_endpointp_client = "192.168.45.1:6001";
+            netWork_endpointp_client_Remote = "114.215.189.49:6001";
+            netWork_endpointp_client_Normal = "192.168.45.1:6001";
             netWork_port_server = "6001";
-            TextBox_wifi_endpoint.Text = netWork_endpointp_client;//Profile.G_EndPoint;
+            TextBox_wifi_endpoint.Text = netWork_endpointp_client_Normal;//Profile.G_EndPoint;
         }
 
         private string GetInternalIP()//获取IP地址
@@ -140,7 +142,7 @@ namespace Wave_test
                         //statusTextBlock.Text = ("与服务器连接中...");
                         socket_TCP_Client.Connect(serverEP);
                         Information("连接成功！", true);
-                        netWork_endpointp_client = TextBox_wifi_endpoint.Text;//保存当前的设置信息
+                        netWork_endpointp_client_Normal = TextBox_wifi_endpoint.Text;//保存当前的设置信息
                         //LocalNetworkInfo(socketClient, true);
                     }
                     catch (SocketException se)
@@ -219,7 +221,7 @@ namespace Wave_test
                     {
                         socket_UDP_Client.SendTo(new byte[] { 0xaa }, rep);
                         Information("连接成功！", true);
-                        netWork_endpointp_client = TextBox_wifi_endpoint.Text;//保存当前的设置信息
+                        netWork_endpointp_client_Normal = TextBox_wifi_endpoint.Text;//保存当前的设置信息
                     }
                     catch (SocketException se)
                     {
@@ -264,31 +266,42 @@ namespace Wave_test
                 case (int)NetworkProtocalType.TCP_Server:
                     try
                     {
-                        if (thread_TCP_Listen != null) thread_TCP_Listen.Abort();
-                        if (threadServerRec != null) threadServerRec.Abort();
-                        socket_TCP_Server.Shutdown(SocketShutdown.Both);
+                        //if (thread_TCP_Listen != null) thread_TCP_Listen.Abort();
+                        //if (threadServerRec != null) threadServerRec.Abort();
+                        //socket_TCP_Server.Shutdown(SocketShutdown.Both);//禁用socket收发
                         socket_TCP_Server.Close();
                     }
-                    catch
+                    catch (System.Exception ex)
                     {
+                        //没有连上时，通过异常终止accept
+                        MessageBox.Show(ex.Message, "TCP_Server.close Error");
                     }
+
+                    if (thread_TCP_Listen != null) thread_TCP_Listen.Abort();
+                    if (threadServerRec != null) threadServerRec.Abort();
+
                     netWork_connectionNum = 0;
                     Button_Wifi_connect.Content = "创建";
                     TextBox_wifi_endpoint.IsEnabled = true;
                     ComboxBox_Wifi_protocal.IsEnabled = true;
-                    //try
-                    //{
-                    //    for (UInt16 i = 0; i < connectionNum; i++)
-                    //        dictSock[i].Close();
+                    try
+                    {
+                        for (UInt16 i = 0; i < netWork_connectionNum; i++)
+                        {
+                            dictSock[i].Disconnect(true);
+                            dictSock[i].Close();
+                        }
+                        dictSock.Clear();//清除所有的socket 发送函数默认的采用dictSock[0]
 
-                    //    socketWatch.Close();
-                    //    threadWatch.Abort();
 
-                    //}
-                    //catch
-                    //{
-                    //    return;
-                    //}
+                        //socketWatch.Close();
+                        //threadWatch.Abort();
+
+                    }
+                    catch (System.Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "TCP_Server.close socket Error");
+                    }
                     //dictConnectInfo.Clear();
                     //connectObjectComboBox.Items.Refresh();
                     //connectObjectComboBox.SelectedIndex = 0;
@@ -555,11 +568,16 @@ namespace Wave_test
                     }
                     catch (SocketException se)
                     {
-                        MessageBox.Show("Error;", se.Message);
-                        return;
+                        MessageBox.Show("TCPWatchConnecting Socket Error;", se.Message);
+                        //return;
+                        break;
                     }
                     catch
-                    { return; }
+                    {
+                        MessageBox.Show("TCPWatchConnecting Error");
+                        //return;
+                        break;
+                    }
                 }
                 Thread.Sleep(100);
             }
@@ -580,7 +598,7 @@ namespace Wave_test
                 {
                     case (int)NetworkProtocalType.TCP_Client:
                         //        //显示提示文字
-                        TextBox_wifi_endpoint.Text = netWork_endpointp_client;
+                        TextBox_wifi_endpoint.Text = netWork_endpointp_client_Normal;
                         wifi_protocalType = (int)NetworkProtocalType.TCP_Client;
                         Button_Wifi_connect.Content = "连接";
                         break;
@@ -596,7 +614,7 @@ namespace Wave_test
                         Button_Wifi_connect.Content = "创建";
                         break;
                     case (int)NetworkProtocalType.UDP_Client:
-                        TextBox_wifi_endpoint.Text = netWork_endpointp_client;
+                        TextBox_wifi_endpoint.Text = netWork_endpointp_client_Normal;
                         wifi_protocalType = (int)NetworkProtocalType.UDP_Client;
                         Button_Wifi_connect.Content = "连接";
                         break;
@@ -645,16 +663,21 @@ namespace Wave_test
             }
         }
 
-        private void Label_ep_switch_KeyDown(object sender, KeyEventArgs e)
+        /// <summary>
+        /// 近远程端点选择
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void checkBox_EndPoint_Switch_Click(object sender, RoutedEventArgs e)
         {
             if (Label_ep_switch.Content.Equals("近程端点"))
             {
-                TextBox_wifi_endpoint.Text = "114.215.189.49:60009";
+                TextBox_wifi_endpoint.Text = netWork_endpointp_client_Remote;
                 Label_ep_switch.Content = "远程端点";
             }
             else if (Label_ep_switch.Content.Equals("远程端点"))
             {
-                TextBox_wifi_endpoint.Text = "192.168.1.1:25000";
+                TextBox_wifi_endpoint.Text = netWork_endpointp_client_Normal;
                 Label_ep_switch.Content = "近程端点";
             }
         }

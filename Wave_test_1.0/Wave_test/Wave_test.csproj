@@ -51,6 +51,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -71,8 +72,12 @@
     <Compile Include="configuration\Configuration.cs" />
     <Compile Include="Menu_Events.cs" />
     <Compile Include="NetWorks.cs" />
+    <Compile Include="PlotSetting_window.xaml.cs">
+      <DependentUpon>PlotSetting_window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Serial.cs" />
     <Compile Include="StaTimers.cs" />
+    <Compile Include="Subwindows_event.cs" />
     <Compile Include="Utilities.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -86,6 +91,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PlotSetting_window.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PlotViewModel.cs" />
@@ -118,6 +127,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ooopic.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

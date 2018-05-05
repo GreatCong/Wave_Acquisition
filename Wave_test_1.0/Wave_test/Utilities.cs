@@ -185,8 +185,9 @@ namespace Wave_test
             //保存要显示的通道数
             config.Add("dataChannel_display", _viewModel.getChannel_num());
             //保存Network相关信息
-            config.Add("netWork_endpointp_client", netWork_endpointp_client);//client的地址
+            config.Add("netWork_endpointp_client_Normal", netWork_endpointp_client_Normal);//client的地址
             config.Add("netWork_port_server", netWork_port_server);//server的端口号
+            config.Add("netWork_endpointp_client_Remote", netWork_endpointp_client_Remote);//client的地址远程(如阿里云服务器)
 
             // 保存配置信息到磁盘中
             Configuration.Save(config, @"Config\default.conf");
@@ -359,9 +360,10 @@ namespace Wave_test
             _viewModel.setChannel_num(dataChannel_display);
             ComboBox_PlotChannel_choose.SelectedIndex = dataChannel_display - 1;
             //加载Network相关信息
-            netWork_endpointp_client = config.GetString("netWork_endpointp_client");
+            netWork_endpointp_client_Normal = config.GetString("netWork_endpointp_client_Normal");
             netWork_port_server = config.GetString("netWork_port_server");
-            TextBox_wifi_endpoint.Text = netWork_endpointp_client;
+            netWork_endpointp_client_Remote = config.GetString("netWork_endpointp_client_Remote");
+            TextBox_wifi_endpoint.Text = netWork_endpointp_client_Normal;
 
             return true;
         }

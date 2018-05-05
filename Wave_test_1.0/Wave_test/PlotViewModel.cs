@@ -20,19 +20,40 @@ namespace Wave_test
     //plot model
     class PlotViewModel
     {
+        #region  variables
+
+        #region public
         public bool isStop = true;
         public Queue Q_data = new Queue();
         public Data_XYZ data_x;
         public Data_XYZ data_y;
         public Data_XYZ data_z;
+        //默认全部选择
+        public bool is_dataCH1_Display = true;
+        public bool is_dataCH2_Display = true;
+        public bool is_dataCH3_Display = true;
 
         public int Int_TabControl_TransportChoose_select = 0;//默认是USB选项卡
 
+        public PlotModel SimplePlotModel { get; set; }
+        #endregion
+
+        #region private
         private int dataNum_display = 1024;//默认显示的点数是1024
         private int dataChannel_display = 1;//默认显示的通道是1
-        private int[] dataInterval_display = new int[3]{1000,0,-1000};//默认显示的通道间隔，保证线条不重叠
+        private int[] dataInterval_display = new int[3]{1000,0,-1000};//默认显示的通道间隔，保证线条不重叠   
+             
+        //Y轴显示的值的系数
+        private double  dataPlus_display_Y = 1;//乘系数
+        private double dataDiv_display_Y = 1;//除系数
 
-        public PlotModel SimplePlotModel { get; set; }
+        private LinearAxis leftAxis;//定义Y轴
+        private LinearAxis bottomAxis;//定义X轴
+
+        #endregion
+
+
+        #endregion
 
         #region public functions
 
@@ -56,11 +77,48 @@ namespace Wave_test
             return dataNum_display;
         }
 
+        public void setDisplay_bias(int num,int values)
+        {
+            dataInterval_display[num] = values;
+        }
+
+        public int getDisplay_bias(int num)
+        {
+            return dataInterval_display[num];
+        }
+
+        public void setDisplay_plusY(int values)
+        {
+            dataPlus_display_Y = values;
+        }
+
+        public double getDisplay_plusY()
+        {
+            return dataPlus_display_Y;
+        }
+
+        public void setDisplay_divY(int values)
+        {
+            dataDiv_display_Y = values;
+        }
+
+        public double getDisplay_divY()
+        {
+            return dataDiv_display_Y;
+        }
+
+        public void setDisplay_Ytitle(string text)
+        {
+            leftAxis.Title = text;
+            //刷新视图
+            SimplePlotModel.InvalidatePlot(true);
+        }
+
         #endregion
 
         public PlotViewModel()
         {
-            SimplePlotModel = new PlotModel();
+            SimplePlotModel = new PlotModel();//定义新的model
 
             #region 定义线条
             var lineSerial1 = new LineSeries() { Title = "X轴" };
@@ -76,7 +134,7 @@ namespace Wave_test
 
             #region 定义坐标轴
             //定义y轴
-            LinearAxis leftAxis = new LinearAxis()
+            leftAxis = new LinearAxis()
             {
                 Position = AxisPosition.Left,
                 //Minimum = 0,
@@ -92,7 +150,7 @@ namespace Wave_test
                 MinorGridlineColor = OxyColor.Parse("#666b8d")
             };
             //定义x轴
-            LinearAxis bottomAxis = new LinearAxis()
+            bottomAxis = new LinearAxis()
             {
                 Position = AxisPosition.Bottom,
                 //Minimum = 0,
@@ -114,7 +172,6 @@ namespace Wave_test
 
             SimplePlotModel.LegendPlacement = LegendPlacement.Outside;//设置legend在外面
 
-            
             #region 刷新处理
             //var rd = new Random();
             Task.Factory.StartNew(() =>
@@ -133,6 +190,11 @@ namespace Wave_test
                     if (!isStop)
                     {
                         Console.WriteLine("Q_data.Count={0}", Q_data.Count);
+                        //channel显示
+                        lineSerial1.IsVisible = is_dataCH1_Display;
+                        lineSerial2.IsVisible = is_dataCH2_Display;
+                        lineSerial3.IsVisible = is_dataCH3_Display;
+
                         int dataWill_display = dataNum_display * 2 * dataChannel_display;
                         if (Q_data.Count > dataWill_display)
                         {
@@ -175,16 +237,19 @@ namespace Wave_test
                                                 {
                                                     if (Int_TabControl_TransportChoose_select == 0)
                                                     {
-                                                        ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                                    //ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                                    //移位操作会优先考虑转换为无符号数据
+                                                    ushort_temp[0] = (short)(((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue());//位操作最好加上强制转换，否则数据不对
                                                     }
                                                     else
                                                     {
                                                         //network与USB的解析方向相反
-                                                        ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对 
-                                                    }
+                                                        //ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对 
+                                                        ushort_temp[0] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                }
 
-
-                                                    lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0]));//X通道
+                                                //lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0]));//X通道
+                                                lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] * dataPlus_display_Y/ dataDiv_display_Y));//X通道
 
                                                     //handles
                                                     data_sum[0] += ushort_temp[0];
@@ -207,21 +272,27 @@ namespace Wave_test
                                             {
                                                 if (Int_TabControl_TransportChoose_select == 0)
                                                 {
-                                                    ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                    ushort_temp[1] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                }
+                                                ushort_temp[0] = (short)(((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue());//位操作最好加上强制转换，否则数据不对
+                                                ushort_temp[1] = (short)(((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue());//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[1] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                            }
                                                 else
                                                 {
-                                                    //network与USB的解析方向相反
-                                                    ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
-                                                    ushort_temp[1] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
-                                                }
-                                              
-                                              lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] + dataInterval_display[0]));//X通道
-                                              lineSerial2.Points.Add(new DataPoint(i, ushort_temp[1] + dataInterval_display[1]));//Y通道
+                                                //network与USB的解析方向相反
+                                                ushort_temp[0] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                ushort_temp[1] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[1] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
+                                            }
 
-                                              //handles
-                                              data_sum[0] += ushort_temp[0];
+                                            //lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] + dataInterval_display[0]));//X通道
+                                            //lineSerial2.Points.Add(new DataPoint(i, ushort_temp[1] + dataInterval_display[1]));//Y通道
+                                            lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] * dataPlus_display_Y / dataDiv_display_Y));//X通道
+                                            lineSerial2.Points.Add(new DataPoint(i, ushort_temp[1] * dataPlus_display_Y / dataDiv_display_Y));//Y通道
+
+                                            //handles
+                                            data_sum[0] += ushort_temp[0];
                                               data_sum[1] += ushort_temp[1];
                                               if (ushort_temp[0] > max_data_temp[0])//寻找最大值
                                               {
@@ -249,26 +320,36 @@ namespace Wave_test
                                             {
                                                 if (Int_TabControl_TransportChoose_select == 0)
                                                 {
-                                                    ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                    ushort_temp[1] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                    ushort_temp[2] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                }
+                                                ushort_temp[0] = (short)(((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue());//位操作最好加上强制转换，否则数据不对
+                                                ushort_temp[1] = (short)(((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue());//位操作最好加上强制转换，否则数据不对
+                                                ushort_temp[2] = (short)(((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue());//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[1] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[2] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                            }
                                                 else
                                                 {
-                                                    //network与USB的解析方向相反
-                                                    ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
-                                                    ushort_temp[1] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
-                                                    ushort_temp[2] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
-                                                }
+                                                //network与USB的解析方向相反
+                                                ushort_temp[0] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                ushort_temp[1] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                ushort_temp[2] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[1] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[2] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对
+                                            }
                                               //var x = i;
                                               //var y1 = ushort_temp1 + 1000;
                                               //var y2 = ushort_temp2;
                                               //var y3 = ushort_temp3 - 1000;
-                                              lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] + dataInterval_display[0]));//X通道
-                                              lineSerial2.Points.Add(new DataPoint(i, ushort_temp[1] + dataInterval_display[1]));//Y通道
-                                              lineSerial3.Points.Add(new DataPoint(i, ushort_temp[2] + dataInterval_display[2]));//Z通道
-                                              //handles
-                                              data_sum[0] += ushort_temp[0];
+                                              //lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] + dataInterval_display[0]));//X通道
+                                              //lineSerial2.Points.Add(new DataPoint(i, ushort_temp[1] + dataInterval_display[1]));//Y通道
+                                              //lineSerial3.Points.Add(new DataPoint(i, ushort_temp[2] + dataInterval_display[2]));//Z通道
+                                              lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] * dataPlus_display_Y / dataDiv_display_Y));//X通道
+                                              lineSerial2.Points.Add(new DataPoint(i, ushort_temp[1] * dataPlus_display_Y / dataDiv_display_Y));//Y通道
+                                              lineSerial3.Points.Add(new DataPoint(i, ushort_temp[2] * dataPlus_display_Y / dataDiv_display_Y));//Z通道
+
+                                            //handles
+                                            data_sum[0] += ushort_temp[0];
                                               data_sum[1] += ushort_temp[1];
                                               data_sum[2] += ushort_temp[2];
                                               if (ushort_temp[0] > max_data_temp[0])//寻找最大值
@@ -302,13 +383,15 @@ namespace Wave_test
                                               {
                                                   if (Int_TabControl_TransportChoose_select == 0)
                                                   {
-                                                      ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
-                                                  }
+                                                   ushort_temp[0] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                                //ushort_temp[0] = (ushort)((byte)Q_data.Dequeue() << 8) | (byte)Q_data.Dequeue();//位操作最好加上强制转换，否则数据不对
+                                            }
                                                   else
                                                   {
-                                                      //network与USB的解析方向相反
-                                                      ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对 
-                                                  }
+                                                //network与USB的解析方向相反
+                                                //ushort_temp[0] = (byte)Q_data.Dequeue() | (ushort)((byte)Q_data.Dequeue() << 8);//位操作最好加上强制转换，否则数据不对 
+                                                ushort_temp[0] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
+                                            }
                                                   lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] + dataInterval_display[1]));//X通道
                                               }
                                             break;
