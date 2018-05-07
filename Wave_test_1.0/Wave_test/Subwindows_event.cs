@@ -42,6 +42,8 @@ namespace Wave_test
             _viewModel.setDisplay_divY(setting.value_divY);
             _viewModel.setDisplay_Ytitle(setting.namesY);
 
+            _viewModel.setDisplay_plotTime(setting.plot_sleepTime);//plot线程休眠时间
+
             this.settings_plot = setting;//保存当前的设置
         }
 
@@ -58,6 +60,7 @@ namespace Wave_test
         public int value_plusY = 1;
         public int value_divY = 1;
         public string namesY = "mV";
+        public int plot_sleepTime = 50;//50ms
 
         public window_settings()
         {

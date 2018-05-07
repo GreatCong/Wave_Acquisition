@@ -43,7 +43,8 @@ namespace Wave_test
         {
             textBox_namesY.Text = settings.namesY;
             textBox_valuePlusY.Text = settings.value_plusY.ToString();
-            textBox_valueDivY.Text = settings.value_divY.ToString(); ;
+            textBox_valueDivY.Text = settings.value_divY.ToString();
+            textBox_Plot_sleepTime.Text = settings.plot_sleepTime.ToString();;
 
             radioButton_isZoom.IsChecked = true;
         }

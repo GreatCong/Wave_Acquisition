@@ -281,17 +281,19 @@ namespace Wave_test
                 Usart.Close();
             }
 
+            MessageBoxResult msg_res = MessageBox.Show("是否在退出前保存软件配置？", "小贴士", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
+
             // 提示是否需要保存配置到文件中
-            if (MessageBox.Show("是否在退出前保存软件配置？", "小贴士", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+            if (msg_res == MessageBoxResult.Yes)
             {
                 SaveConfig();
             }
+            else if(msg_res == MessageBoxResult.Cancel)
+            {
+                e.Cancel = true;//不关闭窗口
+            }
+           
         }
-
-
-
-
-
 
         #endregion
 
