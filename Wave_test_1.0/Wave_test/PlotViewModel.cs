@@ -130,7 +130,10 @@ namespace Wave_test
             var lineSerial1 = new LineSeries() { Title = "X轴" };
             var lineSerial2 = new LineSeries() { Title = "Y轴" };
             var lineSerial3 = new LineSeries() { Title = "Z轴" };
-            //lineSerial1.Color = OxyColors.Red;
+            //可以不用定义颜色，让其自动分配
+            lineSerial1.Color = OxyColors.Red;
+            lineSerial2.Color = OxyColors.Brown;
+            lineSerial3.Color = OxyColors.Green;
             //lineSerial.Points.Add(new DataPoint(0, 0));
             //lineSerial.Points.Add(new DataPoint(10, 10));
             SimplePlotModel.Series.Add(lineSerial1);
@@ -254,8 +257,9 @@ namespace Wave_test
                                                         ushort_temp[0] = (short)((byte)Q_data.Dequeue() | ((byte)Q_data.Dequeue() << 8));//位操作最好加上强制转换，否则数据不对
                                                 }
 
-                                                //lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] + dataInterval_display[0]));//X通道
-                                                lineSerial1.Points.Add(new DataPoint(i, (ushort_temp[0] + dataInterval_display[0]) * dataPlus_display_Y/ dataDiv_display_Y));//X通道
+                                                //lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0]));//X通道
+                                                //一个通道不叠加偏置
+                                                lineSerial1.Points.Add(new DataPoint(i, ushort_temp[0] * dataPlus_display_Y/ dataDiv_display_Y));//X通道
 
                                                     //handles
                                                     data_sum[0] += ushort_temp[0];
@@ -267,7 +271,7 @@ namespace Wave_test
                                                 }
                                                 data_average[0] = max_data_temp[0] - data_sum[0] / dataNum_display;
                                                 //更改单位为mV
-                                                data_average[0] = data_average[0] * 10000 / 32768;
+                                                data_average[0] = data_average[0] * 5000 / 32768;
                                                 data_x.Data_value = "x:" + data_average[0].ToString();
                                                 data_y.Data_value = "y:NULL";
                                                 data_z.Data_value = "z:NULL";
@@ -316,8 +320,8 @@ namespace Wave_test
                                             data_average[0] = max_data_temp[0] - data_sum[0] / dataNum_display;
                                             data_average[1] = max_data_temp[1] - data_sum[1] / dataNum_display;
                                             //更改单位为mV
-                                            data_average[0] = data_average[0] * 10000 / 32768;
-                                            data_average[1] = data_average[1] * 10000 / 32768;
+                                            data_average[0] = data_average[0] * 5000 / 32768;
+                                            data_average[1] = data_average[1] * 5000 / 32768;
 
                                             data_x.Data_value = "x:" + data_average[0].ToString();
                                             data_y.Data_value = "y:" + data_average[1].ToString();
@@ -382,6 +386,11 @@ namespace Wave_test
                                             data_average[0] = max_data_temp[0] - data_sum[0] / dataNum_display;
                                             data_average[1] = max_data_temp[1] - data_sum[1] / dataNum_display;
                                             data_average[2] = max_data_temp[2] - data_sum[2] / dataNum_display;
+
+                                            //更改单位为mV
+                                            data_average[0] = data_average[0] * 5000 / 32768;
+                                            data_average[1] = data_average[1] * 5000 / 32768;
+                                            data_average[2] = data_average[2] * 5000 / 32768;
 
                                             data_x.Data_value = "x:" + data_average[0].ToString();
                                             data_y.Data_value = "y:" + data_average[1].ToString();

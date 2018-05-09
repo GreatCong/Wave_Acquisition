@@ -109,6 +109,45 @@ namespace Wave_test
             //}
 
             ComboBox_PlotChannel_choose.IsEnabled = false;
+
+            switch (_viewModel.getChannel_num())
+            {
+                case 1:
+                    textBox_CH1_bias.IsEnabled = true;
+                    textBox_CH2_bias.IsEnabled = false;
+                    textBox_CH3_bias.IsEnabled = false;
+
+                    //CheckBox_dataCH1_isDisplay.IsChecked = true;
+                    CheckBox_dataCH2_isDisplay.IsChecked = false;
+                    CheckBox_dataCH3_isDisplay.IsChecked = false;
+
+                    _viewModel.is_dataCH2_Display = false;
+                    _viewModel.is_dataCH3_Display = false;
+
+                    break;
+                case 2:
+                    textBox_CH1_bias.IsEnabled = true;
+                    textBox_CH2_bias.IsEnabled = true;
+                    textBox_CH3_bias.IsEnabled = false;
+
+                    CheckBox_dataCH3_isDisplay.IsChecked = false;
+
+                    _viewModel.is_dataCH3_Display = false;
+                    break;
+                case 3://如果是三个通道就不做处理
+                    break;
+                default:
+                    textBox_CH1_bias.IsEnabled = true;
+                    textBox_CH2_bias.IsEnabled = false;
+                    textBox_CH3_bias.IsEnabled = false;
+
+                    CheckBox_dataCH2_isDisplay.IsChecked = false;
+                    CheckBox_dataCH3_isDisplay.IsChecked = false;
+
+                    _viewModel.is_dataCH2_Display = false;
+                    _viewModel.is_dataCH3_Display = false;
+                    break;
+            }
         }
         //Stop Plot
         private void Button_PlotStop_Click(object sender, RoutedEventArgs e)
@@ -254,19 +293,54 @@ namespace Wave_test
         //偏置显示Ch1
         private void textBox_CH1_bias_KeyDown(object sender, KeyEventArgs e)
         {
-            _viewModel.setDisplay_bias(0, Convert.ToInt32(textBox_CH1_bias.Text.ToString()));
+            if (e.Key == Key.Enter)//按下enter键,执行
+            {
+                try
+                {
+                    _viewModel.setDisplay_bias(0, Convert.ToInt32(textBox_CH1_bias.Text.ToString()));
+                    //Console.Write(Convert.ToInt32(textBox_CH1_bias.Text.ToString()));
+                }
+                catch (SystemException ep)
+                {
+                    MessageBox.Show(ep.Message, "CH1_bias setting error");
+                }
+            }            
+
         }
 
         //偏置显示Ch2
         private void textBox_CH2_bias_KeyDown(object sender, KeyEventArgs e)
         {
-            _viewModel.setDisplay_bias(1, Convert.ToInt32(textBox_CH2_bias.Text.ToString()));
+            if (e.Key == Key.Enter)//按下enter键,执行
+            { 
+                try
+                {
+                   _viewModel.setDisplay_bias(1, Convert.ToInt32(textBox_CH2_bias.Text.ToString()));
+                   //Console.Write(Convert.ToInt32(textBox_CH2_bias.Text.ToString()));
+                }
+                catch (SystemException ep)
+                {
+                    MessageBox.Show(ep.Message, "CH2_bias setting error");
+                }
+            }
+
         }
 
         //偏置显示Ch3
         private void textBox_CH3_bias_KeyDown(object sender, KeyEventArgs e)
         {
-            _viewModel.setDisplay_bias(2, Convert.ToInt32(textBox_CH3_bias.Text.ToString()));
+            if (e.Key == Key.Enter)//按下enter键,执行
+            { 
+                try
+                {
+                    _viewModel.setDisplay_bias(2, Convert.ToInt32(textBox_CH3_bias.Text.ToString()));
+                    //Console.Write(Convert.ToInt32(textBox_CH3_bias.Text.ToString()));
+                }
+                catch (SystemException ep)
+                {
+                    MessageBox.Show(ep.Message, "CH3_bias setting error");
+                }
+            }
         }
 
         #endregion
@@ -295,9 +369,9 @@ namespace Wave_test
            
         }
 
-        #endregion
 
-        
+
+        #endregion
 
     }
 
